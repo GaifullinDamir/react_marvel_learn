@@ -1,6 +1,5 @@
 import { Component } from 'react/cjs/react.production.min';
 import MarvelService from '../../services/MarvelService';
-import CharItem from '../charItem/CharItem';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import Spinner from '../spinner/Spinner';
 import './charList.scss';
@@ -35,12 +34,28 @@ class CharList extends Component {
     componentDidMount() {
         this.updateCharList();
     }
+
+    renderItems (arr) {
+        
+        const items = arr.map(item => {
+            return(
+                <li className="char__item" key={item.id}>
+                    <img src={item.thumbnail} alt={item.name} style={{objectFit: 'cover'}}/>
+                <div className="char__name">{item.name}</div>
+            </li>
+        )})
+
+        return items;
+        
+    }
+
     render() {
 
         const {charList, loading, error} = this.state;
+        const items = this.renderItems(charList);
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View charList={charList}/> : null;
+        const content = !(loading || error) ? items : null;
         return (
             <div className="char__list">
                 {errorMessage}
@@ -54,18 +69,6 @@ class CharList extends Component {
             </div>
         )
     }
-}
-
-const View = ({charList}) => {
-    const active = 'char__item_selected';
-    debugger;
-    return (
-        charList.map(item => {
-            const{id, ...itemProps} = item;
-
-            return(<CharItem key={id} {...itemProps} />)
-        })
-    )
 }
 
 export default CharList;

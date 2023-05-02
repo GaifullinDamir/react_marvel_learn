@@ -8,7 +8,7 @@ import mjolnir from '../../resources/img/mjolnir.png';
 
 //1. При нажатии на TRY IT загружается новый персонаж | OK
 //2. При загрузке изображения-заглушки сделать так, чтобы css cover менялся на contain | OK
-//3. Реализовать компонент charList
+//3. Реализовать компонент charList |OK
 class RandomChar extends Component {
 
     //Создаем состояние класса RandomChar
