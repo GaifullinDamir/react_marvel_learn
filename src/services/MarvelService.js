@@ -4,6 +4,7 @@ class MarvelService {
 
     _apiBase = 'https://gateway.marvel.com:443/v1/public/';
     _apiKey = 'apikey=8e8fe48f8d1a75d5a0ef59af78a5207f';
+    _baseOffset = 210;
     getResource = async (url) => {
         let res = await fetch(url);
 
@@ -14,8 +15,9 @@ class MarvelService {
         return await res.json();
     }
 
-    getAllCharacters = async () => {
-        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`);
+    //Теперь наша функция отталкивается от аргумента, что позволит ей быть более гибкой
+    getAllCharacters = async (offset = this._baseOffset) => {
+        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=${offset}&${this._apiKey}`);
         return res.data.results.map(this._transformCharacter);
     }
 
@@ -36,7 +38,8 @@ class MarvelService {
             thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
             homepage: char.urls[0].url,
             wiki: char.urls[1].url,
-            id: char.id
+            id: char.id,
+            comics: char.comics.items
         }
         
     }
