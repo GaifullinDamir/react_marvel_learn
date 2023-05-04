@@ -1,98 +1,95 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 import MarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
+const RandomChar = (props) => {
 
-//1. При нажатии на TRY IT загружается новый персонаж | OK
-//2. При загрузке изображения-заглушки сделать так, чтобы css cover менялся на contain | OK
-//3. Реализовать компонент charList |OK
-class RandomChar extends Component {
+    const [char, setChar] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    //Создаем состояние класса RandomChar
-    //Используем синтоксис полей классов
-    state = {
-        char: {},
-        //Идет загрузка компонента или нет
-        loading: true,
-        error: false,
-        imgNF: false
-    }
 
-    marvelService = new MarvelService();
-
+    const marvelService = new MarvelService();
    
     //Таким образом мы записываем в state требуемые данные со всем полями.
-    onCharLoaded = (char) => {
-        const imgNFPath = 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg';
-        this.setState({char, loading: false, imgNF: char.thumbnail == imgNFPath})
+    const onCharLoaded = (char) => {
+        setChar(item => char);
+        setLoading(false);
     }
 
-    onError = () => {
-        this.setState({loading: false, error: true})
+    const onError = () => {
+        setLoading(false);
+        setError(true);
     }
 
      //Выволняем запрос к серверу и получаем данные.
     //После, записываем эти данные в состояние текущего объекта.
-    updateChar = () => {
+    const updateChar = () => {
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        this.setState({loading:true})
-        this.marvelService.
+        setLoading(true);
+        marvelService.
             getCharacter(id).
             //то, что вернется в результате Promise, вернется и подставится автмоатически в this.onCharLoaded
-            then(this.onCharLoaded).
-            catch(this.onError);
+            then(onCharLoaded).
+            catch(onError);
     }
 
-    componentDidMount() {
-        this.updateChar();
-    }
+    useEffect(() => {
+        console.log('effect RC 0');
+        updateChar();
 
-    render() {
+        const timerId = setInterval(updateChar, 60000);
 
-        //Производим деструктуризацию нашего состояния, дабы работать с этими данными далее.
-        //Из свойства char мы вытаскиваем наши свойства.
-        // const{char: {name, description, thumbnail, homepage, wiki}, loading} = this.state;
-        const{char, loading, error, imgNF} = this.state;
-        //В зависимости от проверок, у нас будет записан элемент в переменную.
-        //Пустые элементы отображаться на странице не будут.
-        const errorMessage = error ? <ErrorMessage/> : null;
-        const spinner = loading ? <Spinner/> : null;
-        const content = !(loading || error) ? <View char={char} imgNF={imgNF}/> : null;
+        return () => {
+            //Вызывается в том случае, если компонент был удален
+            console.log('deleted');
+            clearInterval(timerId);
+        }
+    }, [])
 
-        return (
-            <div className="randomchar">
-                {errorMessage}
-                {spinner}
-                {content}
-                <div className="randomchar__static">
-                    <p className="randomchar__title">
-                        Random character for today!<br/>
-                        Do you want to get to know him better?
-                    </p>
-                    <p className="randomchar__title">
-                        Or choose another one
-                    </p>
-                    <button className="button button__main"
-                        onClick={this.updateChar}>
-                        <div className="inner">try it</div>
-                    </button>
-                    <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
-                </div>
+
+    //В зависимости от проверок, у нас будет записан элемент в переменную.
+    //Пустые элементы отображаться на странице не будут.
+    const errorMessage = error ? <ErrorMessage/> : null;
+    const spinner = loading ? <Spinner/> : null;
+    const content = !(loading || error) ? <View char={char}/> : null;
+
+    return (
+        <div className="randomchar">
+            {errorMessage}
+            {spinner}
+            {content}
+            <div className="randomchar__static">
+                <p className="randomchar__title">
+                    Random character for today!<br/>
+                    Do you want to get to know him better?
+                </p>
+                <p className="randomchar__title">
+                    Or choose another one
+                </p>
+                <button className="button button__main"
+                    onClick={updateChar}>
+                    <div className="inner">try it</div>
+                </button>
+                <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
             </div>
-        )
-    }
+        </div>
+    )
 }
 
-const View = ({char, imgNF}) => {
+const View = ({char}) => {
     
     const {name, description, thumbnail, homepage, wiki} = char;
-    const imgStyle = (imgNF ? 'contain' : 'cover');
+    let imgStyle = {'objectFit' : 'cover'};
+    if (thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg') {
+        imgStyle = {'objectFit' : 'contain'};
+    }
     return(
         <div className="randomchar__block">
-            <img src={thumbnail} alt="Random character" className="randomchar__img" style={{objectFit: imgStyle}}/>
+            <img src={thumbnail} alt="Random character" className="randomchar__img" style={{imgStyle}}/>
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
                 <p className="randomchar__descr">

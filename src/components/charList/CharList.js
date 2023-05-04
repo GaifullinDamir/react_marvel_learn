@@ -6,12 +6,10 @@ import Spinner from '../spinner/Spinner';
 import './charList.scss';
 
 
-// Сделать так, чтобы при выборе персонажа у него было выделение как в макете. Использовать при этом ref.
-// И, чтобы все это работало с клавиатуры.
-//Эффект только на одном элементе!
-// Может понадобиться ручной focus и свойство tabIndex.
-
-
+//Перевести на хуки:
+// CharInfo | OK
+// RandomChar |
+//Не забудь отписаться от TimeOut и поставить зависимости в useEffect
 const CharList = (props) => {
      
     const [charList, setCharList] = useState([]);
@@ -139,6 +137,9 @@ const CharList = (props) => {
     )
 }
 
+
+//Такой синтаксис PropTypes для хуков будет работать, если не использовать прямой экспорт, а использовать 
+// export default
 CharList.propTypes = {
     onCharSelected: PropTypes.func.isRequired
 }
