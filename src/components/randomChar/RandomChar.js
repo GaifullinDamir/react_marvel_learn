@@ -1,40 +1,31 @@
 import { useState, useEffect } from 'react';
-import MarvelService from '../../services/MarvelService';
+import useMarvelService from '../../services/MarvelService';
 import Spinner from '../spinner/Spinner';
 import ErrorMessage from '../errorMessage/ErrorMessage';
 import './randomChar.scss';
 import mjolnir from '../../resources/img/mjolnir.png';
 
+//Реализовать заготовку второй страницы самостоятельно.
+
 const RandomChar = (props) => {
 
     const [char, setChar] = useState({});
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(false);
 
-
-    const marvelService = new MarvelService();
+    const {loading, error, getCharacter, clearError} = useMarvelService();
    
     //Таким образом мы записываем в state требуемые данные со всем полями.
     const onCharLoaded = (char) => {
         setChar(item => char);
-        setLoading(false);
-    }
-
-    const onError = () => {
-        setLoading(false);
-        setError(true);
     }
 
      //Выволняем запрос к серверу и получаем данные.
     //После, записываем эти данные в состояние текущего объекта.
     const updateChar = () => {
+        clearError();
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
-        setLoading(true);
-        marvelService.
-            getCharacter(id).
+        getCharacter(id).
             //то, что вернется в результате Promise, вернется и подставится автмоатически в this.onCharLoaded
-            then(onCharLoaded).
-            catch(onError);
+            then(onCharLoaded);
     }
 
     useEffect(() => {
